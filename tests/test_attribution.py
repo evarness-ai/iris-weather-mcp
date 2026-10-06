@@ -91,7 +91,7 @@ def test_a_bridged_row_does_carry_the_session_when_called_inside_a_turn(op, mete
         assert sessions == {"sess-1"}
 
 
-def test_the_stable_audit_row_type_has_no_caller_for_either_arm() -> None:
+def test_the_stable_audit_row_type_carries_a_caller() -> None:
     from iris_harness.testing import TurnAuditRow
 
-    assert "caller" not in TurnAuditRow.__dataclass_fields__
+    assert "caller" in TurnAuditRow.__dataclass_fields__  # added to the stable row in harness main

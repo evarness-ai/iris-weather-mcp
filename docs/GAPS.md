@@ -1,13 +1,21 @@
 # SDK and bridge gaps found while running the weather tool over MCP
 
-Run of evarness-ai/iris-harness#82, locally. Each entry says what was tried, what happened,
+Run of evarness-ai/iris-harness#82, locally; first run against an earlier harness build, re-run
+on 2026-10-06 against `main` at `2166717`. Each entry says what was tried, what happened,
 the evidence (a test in this repository, `xfail(strict)` where the test states the behaviour
 the criteria need and the harness does not provide), and the core change proposed. None is
 worked around in this repository: where a test needs a harness internal to get any
 observation at all, that is itself recorded (GAP-M1, GAP-M2).
 
-Built against iris-harness `main` at `cb94a0b` (the wheel in `../wheelhouse`), Python 3.12.13,
-macOS, `mcp` 2.3.0 for the server. Source references are to that commit.
+Re-run against a wheel built from iris-harness `main` at `2166717`, Python 3.12.13, macOS, `mcp`
+2.3.0 for the server. Every gap below still reproduces at `2166717` (the tests that pin them pass,
+and the 14 strict xfails still xfail), except that the number of PRE hooks that fire on a bridged
+call is now ten (a `pre_tool_use_ledger` row was added, iris-harness#95) and POST rows four.
+Source file and line references were taken from the earlier build and were not re-checked line
+by line.
+
+Tracking in evarness-ai/iris-harness: GAP-M1/M2/M3 are #111; GAP-M6..M10 and M7a/M7b are #112;
+GAP-M4a-d and M5b are #113; GAP-M5, M12, M13 and M14 are #114.
 
 Severity: **A** = the property cannot be had at all; **B** = the bridge is wrong or unsafe on a
 path an ordinary server takes; **C** = missing coverage or diagnosability.
@@ -144,7 +152,7 @@ except where noted.
   counted (`test_an_is_error_result_is_not_recorded_as_a_success`, xfail;
   `test_the_bridge_does_not_check_the_tool_against_what_the_server_declared` with the real
   server). In-process a failing tool is charged to its plugin and degrades it.
-* Also: the bridge forwards any tool name the caller supplies and runs the nine PRE hooks on
+* Also: the bridge forwards any tool name the caller supplies and runs the PRE hooks (ten at `2166717`) on
   it as on a declared one; there is no declared-tool list to refuse against (in-process
   `tools:` does that, graduation P0-5).
 * Proposed: surface `isError` as a failed call (a `deny`/error outcome on POST); check the
@@ -205,7 +213,7 @@ except where noted.
   here: the file-less case and shadow/enforce with files written by the operator.)
 * A refusal is a `RuntimeError` (`MCPSignatureError`), not the `PermissionError` every other
   refusal is, so the HTTP route would answer 400 instead of 403, and it is raised after
-  PRE_TOOL_USE wrote nine `allow` rows for a call that never ran (no `deny`, no POST).
+  PRE_TOOL_USE wrote ten `allow` rows for a call that never ran (no `deny`, no POST).
 * The verdict (`verified`, signer, key id) goes to a logger warning only; the ledger rows
   carry none of it (`test_the_signing_verdict_is_logged_but_never_written_to_the_ledger`).
 * The CLI has `keygen`, `sign`, `verify` and no `revoke`, `remove` or `list`
@@ -265,7 +273,7 @@ This is the key comparison with in-process GAP-1 (see COMPARISON.md E1-E5).
   surface `tools/list` and `tools/call` answer 403 and `session` returns `allowed: false`
   (`tests/test_http_surface.py`). Nothing is queued for the owner (contrast the in-process
   write approvals), and the refusal is in the governor's own DB, not the user-facing ledger
-  (the kernel's nine rows for the call say `allow`).
+  (the kernel's rows for the call say `allow`).
 * Proposed: take approval from the tool's declared effect (a read needs none; a write goes
   through the existing queue) instead of a boolean per route.
 

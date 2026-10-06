@@ -91,7 +91,7 @@ def test_a_crash_mid_call_is_an_exception_with_a_pre_row_and_no_post_row(op, bas
     assert isinstance(call.error, ValueError)
     assert "unexpected EOF while reading MCP stdio message" in str(call.error)
     hooks = [r["hook"] for r in call.rows]
-    assert hooks.count("pre_tool_use") == 9 and hooks.count("post_tool_use") == 0
+    assert hooks.count("pre_tool_use") == 10 and hooks.count("post_tool_use") == 0
     # the harness does not know the server exists: no plugin record, no failure count
     assert SERVER not in call.plugins and "weather-mcp" not in call.plugins
     assert not any(pid_alive(p) for p in call.pids())
@@ -211,7 +211,7 @@ def test_a_malformed_result_is_returned_unvalidated_and_passes_post_hooks(op, ba
     call = run(op, base, mode)
     assert call.error is None  # not refused, not an error
     assert call.result is not None
-    assert [r["hook"] for r in call.rows].count("post_tool_use") == 3
+    assert [r["hook"] for r in call.rows].count("post_tool_use") == 4
     assert {r["decision"] for r in call.rows if r["hook"] == "post_tool_use"} == {"allow"}
 
 

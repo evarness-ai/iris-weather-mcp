@@ -137,8 +137,8 @@ def test_enforce_refuses_an_unsigned_server_before_spawning_it(sop) -> None:
     # the failure is a RuntimeError: not the PermissionError every other refusal is, so the
     # HTTP route maps it to 400 instead of 403 (server/iris_api/mcp_server.py)
     assert not isinstance(error, PermissionError)
-    # ledger: nine PRE allows (the kernel ran before the transport) and no POST, no deny row
-    assert [r["hook"] for r in rows].count("pre_tool_use") == 9
+    # ledger: ten PRE allows (the kernel ran before the transport) and no POST, no deny row
+    assert [r["hook"] for r in rows].count("pre_tool_use") == 10
     assert {r["decision"] for r in rows} == {"allow"}
 
 

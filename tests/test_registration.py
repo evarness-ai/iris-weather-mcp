@@ -117,7 +117,7 @@ def test_a_bridge_call_is_governed_pre_and_post_with_keyed_digests(op, meteo) ->
         rows = mcp_rows(h)
         pre = [r for r in rows if r["hook"] == "pre_tool_use"]
         post = [r for r in rows if r["hook"] == "post_tool_use"]
-        assert len(pre) == 9 and len(post) == 3
+        assert len(pre) == 10 and len(post) == 4
         assert {r["decision"] for r in rows} == {"allow"}
         assert pre[0]["payload"]["args_digest"] and post[0]["payload"]["result_digest"]
         assert pre[0]["payload"]["digest_alg"].startswith("hmac-sha256/v1/")
@@ -154,7 +154,7 @@ def test_in_the_loop_through_the_measurement_adapter(op, meteo, entry) -> None:
         assert h.audit_gaps() == []
         loop_pre = raw_rows(h, tool=TOOL, hook="pre_tool_use")
         assert {r["payload"]["caller"] for r in loop_pre} == {"model:system"}
-        assert len(mcp_rows(h)) == 12  # 9 PRE + 3 POST for the MCP leg, on top of the loop's
+        assert len(mcp_rows(h)) == 14  # 10 PRE + 4 POST for the MCP leg, on top of the loop's
         assert len(meteo.requests) == 2  # geocode + forecast, from the SERVER process
 
 
@@ -192,6 +192,6 @@ def test_the_bridge_does_not_check_the_tool_against_what_the_server_declared(op,
         assert out.result["isError"] is True
         assert "delete_everything" in text_of(out.result)
         rows = raw_rows(h, tool="mcp/weather/delete_everything")
-        assert [r["hook"] for r in rows].count("pre_tool_use") == 9
-        assert [r["hook"] for r in rows].count("post_tool_use") == 3
+        assert [r["hook"] for r in rows].count("pre_tool_use") == 10
+        assert [r["hook"] for r in rows].count("post_tool_use") == 4
         assert {r["decision"] for r in rows} == {"allow"}

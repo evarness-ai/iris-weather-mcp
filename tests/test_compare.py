@@ -91,8 +91,8 @@ def test_in_process_arm_pre_and_post_rows_with_the_model_as_caller() -> None:
     with harness(plugins=[in_process()], fake_model=LOOP_SCRIPT) as h:
         assert h.chat(ASK).answered
         rows = tool_rows(h)
-        assert [r["hook"] for r in rows].count("pre_tool_use") == 9
-        assert [r["hook"] for r in rows].count("post_tool_use") == 3
+        assert [r["hook"] for r in rows].count("pre_tool_use") == 10
+        assert [r["hook"] for r in rows].count("post_tool_use") == 4
         assert {r["payload"]["caller"] for r in rows} == {"model:system"}
         assert {r["agent"] for r in rows} == {"system"}
 
