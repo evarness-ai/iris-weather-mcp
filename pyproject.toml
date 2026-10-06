@@ -1,0 +1,46 @@
+# Weather over MCP: the weather plugin's forecast tool as a standalone MCP server process.
+# Experiment for evarness-ai/iris-harness#82 (trust ladder comparison). NOT a plugin: it
+# depends on no iris_harness package, by design and by test.
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iris-weather-mcp"
+version = "0.1.0"
+description = "Open-Meteo forecast as an MCP server (stdio), for the IRIS trust-ladder comparison."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+# The server's whole dependency set. Note what is absent: iris-harness.
+dependencies = ["mcp>=2,<3", "httpx>=0.27,<1"]
+
+[project.optional-dependencies]
+# Host-side tests only; installed in a SEPARATE venv that also holds the harness wheel.
+test = ["pytest>=8", "pytest-asyncio>=0.23", "cryptography"]
+
+[project.scripts]
+iris-weather-mcp = "iris_weather_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S"]
+ignore = ["E501", "S101"]
+
+[tool.ruff.lint.per-file-ignores]
+# the tests spawn subprocesses and write fixtures on purpose
+"tests/**" = ["S603", "S607", "S104", "S105", "S106", "S108"]
